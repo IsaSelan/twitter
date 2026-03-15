@@ -10,34 +10,24 @@
 
 body{
 margin:0;
-font-family:Segoe UI,Arial;
+font-family:Segoe UI;
 background:#eef1f5;
 display:flex;
 }
 
-/* SIDEBAR */
-
 .sidebar{
-width:250px;
+width:220px;
 background:white;
 border-right:1px solid #ddd;
 padding:20px;
 }
 
 .logo{
-font-size:32px;
+font-size:30px;
 color:#1da1f2;
 font-weight:bold;
 margin-bottom:30px;
 }
-
-.menu div{
-margin:18px 0;
-font-size:18px;
-cursor:pointer;
-}
-
-/* FEED */
 
 .feed{
 flex:1;
@@ -54,8 +44,6 @@ font-weight:bold;
 border-bottom:1px solid #eee;
 }
 
-/* COMPOSER */
-
 .composer{
 padding:15px;
 border-bottom:1px solid #eee;
@@ -67,15 +55,6 @@ height:70px;
 border-radius:10px;
 border:1px solid #ccc;
 padding:10px;
-font-size:15px;
-resize:none;
-}
-
-.counter{
-text-align:right;
-font-size:13px;
-color:gray;
-margin-top:4px;
 }
 
 button{
@@ -86,14 +65,7 @@ color:white;
 padding:8px 20px;
 border-radius:20px;
 cursor:pointer;
-font-weight:bold;
 }
-
-input[type=file]{
-margin-top:8px;
-}
-
-/* TWEET */
 
 .tweet{
 display:flex;
@@ -122,83 +94,21 @@ font-size:14px;
 margin-left:5px;
 }
 
-.tweetImg{
-width:100%;
-border-radius:10px;
-margin-top:10px;
-}
-
-.book{
-width:140px;
-margin-top:10px;
-border-radius:8px;
-}
-
-.summary{
-background:#f1f3f5;
-padding:10px;
-border-radius:10px;
-margin-top:8px;
-font-size:14px;
-}
-
-/* ACTIONS */
-
-.actions{
-margin-top:10px;
-display:flex;
-gap:25px;
-color:#1da1f2;
-cursor:pointer;
-}
-
-/* COMMENTS */
-
-.commentBox{
-margin-top:10px;
-}
-
-.comment{
-background:#f5f7fa;
-padding:8px;
-border-radius:8px;
-margin-top:6px;
-display:flex;
-justify-content:space-between;
-}
-
-.delete{
-color:red;
-cursor:pointer;
-font-size:12px;
-}
-
-/* HASHTAGS */
-
 .hashtag{
 color:#1da1f2;
 font-weight:bold;
 }
 
-/* TRENDING */
-
-.trending{
-width:280px;
-padding:20px;
-}
-
-.trendBox{
-background:white;
-border-radius:10px;
-padding:15px;
-}
-
-.trend{
-padding:8px 0;
+.actions{
+margin-top:10px;
+display:flex;
+gap:20px;
 color:#1da1f2;
+cursor:pointer;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -207,11 +117,9 @@ color:#1da1f2;
 
 <div class="logo">𝕏</div>
 
-<div class="menu">
 <div>🏠 Início</div>
 <div>🔎 Explorar</div>
 <div>👤 Perfil</div>
-</div>
 
 </div>
 
@@ -221,11 +129,7 @@ color:#1da1f2;
 
 <div class="composer">
 
-<textarea id="tweetInput" maxlength="280" placeholder="O que você acha? Use #hashtags"></textarea>
-
-<div class="counter" id="counter">0 / 280</div>
-
-<input type="file" id="imageInput">
+<textarea id="tweetInput" placeholder="O que você acha? Use #hashtags"></textarea>
 
 <button onclick="postTweet()">Tweetar</button>
 
@@ -235,110 +139,63 @@ color:#1da1f2;
 
 </div>
 
-<div class="trending">
-
-<div class="trendBox">
-
-<h3>🔥 Trending</h3>
-
-<div class="trend">#CapituInocente</div>
-<div class="trend">#CapituTraiu</div>
-<div class="trend">#DomCasmurro</div>
-<div class="trend">#LiteraturaBrasileira</div>
-
-</div>
-
-</div>
-
-
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDv_7f_zp_Q3p67J2_fwa0870u8PZ97G2U",
-    authDomain: "twitter-literario.firebaseapp.com",
-    projectId: "twitter-literario",
-    storageBucket: "twitter-literario.firebasestorage.app",
-    messagingSenderId: "63443793806",
-    appId: "1:63443793806:web:e8a5d6d0e05ff79fde96df"
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore,collection,addDoc,onSnapshot,deleteDoc,doc,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
+const firebaseConfig = {
 
+apiKey: "COLE_SUA_APIKEY",
+authDomain: "SEU_PROJETO.firebaseapp.com",
+projectId: "SEU_PROJETO",
+storageBucket: "SEU_PROJETO.appspot.com",
+messagingSenderId: "XXXX",
+appId: "XXXX"
 
+};
 
-<script>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-const defaultTweets=[
-
-{
-user:"Machado de Assis",
-avatar:"https://upload.wikimedia.org/wikipedia/commons/0/01/Machado_de_Assis_real.jpg",
-text:"O julgamento de Capitu: traiu ou não? #DomCasmurro #Capitu",
-likes:210,
-book:true,
-comments:[
-{text:"@leitora: #CapituInocente Bentinho era muito ciumento!",likes:3},
-{text:"@critico: #CapituTraiu Existem vários indícios no livro.",likes:2},
-{text:"@prof: #LiteraturaBrasileira O genial da obra é a dúvida.",likes:4},
-{text:"@estudante: #DomCasmurro sempre gera debates nas aulas!",likes:2},
-{text:"@leitor: #CapituInocente Bentinho era um narrador pouco confiável.",likes:1}
-]
-}
-
-]
+const timeline = document.getElementById("timeline")
 
 function formatHashtags(text){
+
 return text.replace(/#(\w+)/g,'<span class="hashtag">#$1</span>')
-}
-
-function loadTweets(){
-
-let tweets=JSON.parse(localStorage.getItem("tweets"))
-
-if(!tweets){
-
-tweets=defaultTweets
-localStorage.setItem("tweets",JSON.stringify(tweets))
 
 }
 
-const timeline=document.getElementById("timeline")
-timeline.innerHTML=""
+window.postTweet = async function(){
 
-tweets.forEach((t,i)=>{
+let text = document.getElementById("tweetInput").value
 
-let commentsHTML=""
+if(!text) return
 
-t.comments.forEach((c,ci)=>{
+await addDoc(collection(db,"tweets"),{
 
-commentsHTML+=`
-
-<div class="comment">
-
-<span>${formatHashtags(c.text)}</span>
-
-<div>
-
-<span onclick="likeComment(${i},${ci})">❤️ ${c.likes}</span>
-
-<span class="delete" onclick="deleteComment(${i},${ci})">🗑</span>
-
-</div>
-
-</div>
-
-`
+user:"Usuário",
+avatar:"https://cdn-icons-png.flaticon.com/512/149/149071.png",
+text:text,
+likes:0
 
 })
 
-let div=document.createElement("div")
+document.getElementById("tweetInput").value=""
+
+}
+
+onSnapshot(collection(db,"tweets"),(snapshot)=>{
+
+timeline.innerHTML=""
+
+snapshot.forEach((docSnap)=>{
+
+let t = docSnap.data()
+let id = docSnap.id
+
+let div = document.createElement("div")
+
 div.className="tweet"
 
 div.innerHTML=`
@@ -348,172 +205,49 @@ div.innerHTML=`
 <div class="content">
 
 <div>
+
 <span class="name">${t.user}</span>
-<span class="username">@${t.user.toLowerCase().replaceAll(" ","")}</span>
+<span class="username">@${t.user.toLowerCase()}</span>
+
 </div>
 
 <p>${formatHashtags(t.text)}</p>
 
-${t.image?`<img class="tweetImg" src="${t.image}">`:""}
-
-${t.book?`
-
-<img class="book" src="https://m.media-amazon.com/images/I/61x1ZHomWUL._AC_UF1000,1000_QL80_.jpg">
-
-<div class="summary">
-
-Dom Casmurro conta a história de Bentinho e Capitu.
-Bentinho acredita ter sido traído por Capitu com Escobar,
-mas o livro nunca confirma isso claramente.
-
-</div>
-
-`:""}
-
 <div class="actions">
 
-<span onclick="likeTweet(${i})">❤️ ${t.likes}</span>
+<span onclick="likeTweet('${id}',${t.likes})">❤️ ${t.likes}</span>
 
-<span onclick="addComment(${i})">💬 Comentar</span>
-
-<span onclick="deleteTweet(${i})">🗑 Apagar</span>
-
-</div>
-
-<div class="commentBox">
-
-${commentsHTML}
+<span onclick="deleteTweet('${id}')">🗑 Apagar</span>
 
 </div>
 
 </div>
+
 `
 
 timeline.appendChild(div)
 
 })
 
-}
-
-function postTweet(){
-
-let text=document.getElementById("tweetInput").value
-let file=document.getElementById("imageInput").files[0]
-
-if(!text && !file) return
-
-let tweets=JSON.parse(localStorage.getItem("tweets"))||[]
-
-if(file){
-
-let reader=new FileReader()
-
-reader.onload=function(){
-
-tweets.unshift({
-user:"Usuário",
-avatar:"https://cdn-icons-png.flaticon.com/512/149/149071.png",
-text:text,
-image:reader.result,
-likes:0,
-comments:[]
 })
 
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
+window.likeTweet = async function(id,likes){
 
-}
+await updateDoc(doc(db,"tweets",id),{
 
-reader.readAsDataURL(file)
+likes:likes+1
 
-}else{
-
-tweets.unshift({
-user:"Usuário",
-avatar:"https://cdn-icons-png.flaticon.com/512/149/149071.png",
-text:text,
-likes:0,
-comments:[]
 })
 
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
-
 }
 
-document.getElementById("tweetInput").value=""
-document.getElementById("imageInput").value=""
-
-}
-
-function likeTweet(i){
-
-let tweets=JSON.parse(localStorage.getItem("tweets"))
-tweets[i].likes++
-
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
-
-}
-
-function addComment(i){
-
-let text=prompt("Digite seu comentário")
-
-if(!text) return
-
-let tweets=JSON.parse(localStorage.getItem("tweets"))
-
-tweets[i].comments.push({
-text:"@usuario: "+text,
-likes:0
-})
-
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
-
-}
-
-function likeComment(t,c){
-
-let tweets=JSON.parse(localStorage.getItem("tweets"))
-tweets[t].comments[c].likes++
-
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
-
-}
-
-function deleteComment(t,c){
-
-let tweets=JSON.parse(localStorage.getItem("tweets"))
-tweets[t].comments.splice(c,1)
-
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
-
-}
-
-function deleteTweet(i){
+window.deleteTweet = async function(id){
 
 if(!confirm("Apagar tweet?")) return
 
-let tweets=JSON.parse(localStorage.getItem("tweets"))
-tweets.splice(i,1)
-
-localStorage.setItem("tweets",JSON.stringify(tweets))
-loadTweets()
+await deleteDoc(doc(db,"tweets",id))
 
 }
-
-document.getElementById("tweetInput").addEventListener("input",function(){
-
-let count=this.value.length
-document.getElementById("counter").innerText=count+" / 280"
-
-})
-
-loadTweets()
 
 </script>
 
