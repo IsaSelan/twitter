@@ -109,7 +109,7 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
   }
 
   // Postar tweet
-  async function postTweet(){
+  async function postTweet() {
     const text = document.getElementById("tweetInput").value.trim();
     const file = document.getElementById("imageInput").files[0];
     if(!text && !file) return;
