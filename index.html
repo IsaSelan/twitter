@@ -59,6 +59,8 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+document.querySelector("button").addEventListener("click", postTweet);
+  
 // Formatar hashtags
 function formatHashtags(text){
   return text.replace(/#(\w+)/g,'<span style="color:#1da1f2;font-weight:bold">#$1</span>');
