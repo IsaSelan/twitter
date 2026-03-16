@@ -20,9 +20,9 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
 .name{font-weight:bold;}
 .username{color:gray;font-size:14px;}
 .tweetImg{width:100%;border-radius:10px;margin-top:10px;}
-.actions{margin-top:10px;display:flex;gap:25px;color:#1da1f2;cursor:pointer;}
-.commentBox{margin-top:10px;}
-.comment{background:#f5f7fa;padding:8px;border-radius:8px;margin-top:6px;display:flex;justify-content:space-between;}
+.actions{margin-top:10px;display:flex;gap:10px;color:#1da1f2;cursor:pointer;}
+.commentBox{margin-top:10px;padding-left:20px;}
+.comment{background:#f5f7fa;padding:5px;border-radius:8px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;}
 .delete{color:red;cursor:pointer;font-size:12px;}
 .trending{width:280px;padding:20px;}
 .trendBox{background:white;border-radius:10px;padding:15px;}
@@ -62,91 +62,131 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
     <div class="trend">#LiteraturaBrasileira</div>
   </div>
 </div>
+
 <!-- SUPABASE -->
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  const SUPABASE_URL = "https://sgyowtyrawcxlfzomauc.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNneW93dHlyYXdjeGxmem9tYXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MjUxNjUsImV4cCI6MjA4OTIwMTE2NX0.dwyq8XdNqXFFiHwf0VQfIH720vGYOmfYhdc_HN6aMt8";
-  
-  
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const timeline = document.getElementById("timeline");
+// 🔹 Substitua com seu Supabase URL e Anon Key
+const SUPABASE_URL = "https://sgyowtyrawcxlfzomauc.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNneW93dHlyYXdjeGxmem9tYXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MjUxNjUsImV4cCI6MjA4OTIwMTE2NX0.dwyq8XdNqXFFiHwf0VQfIH720vGYOmfYhdc_HN6aMt8";
 
-  document.querySelector("button").addEventListener("click", postTweet);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const timeline = document.getElementById("timeline");
 
-  // Formatar hashtags
-  function formatHashtags(text){
-    return text.replace(/#(\w+)/g,'<span style="color:#1da1f2;font-weight:bold">#$1</span>');
-  }
+// 🔹 Formatar hashtags
+function formatHashtags(text){
+  return text.replace(/#(\w+)/g,'<span style="color:#1da1f2;font-weight:bold">#$1</span>');
+}
 
-  // Carregar tweets
-  async function loadTweets(){
-    const { data: tweets, error } = await supabase
-      .from('tweets')
-      .select('*')
-      .order('created_at', { ascending: false });
+// 🔹 Carregar tweets e comentários
+async function loadTweets(){
+  const { data: tweets, error } = await supabase.from('tweets').select('*').order('created_at',{ascending:false});
+  if(error){ console.log(error); return; }
+  timeline.innerHTML = "";
 
-    if(error){ console.log(error); return; }
-    timeline.innerHTML = "";
+  tweets.forEach(t => {
+    let commentsHTML = "";
+    if(t.comments){
+      t.comments.forEach((c,i)=>{
+        commentsHTML += `<div class="comment">
+          <span>${c.text}</span>
+          <span onclick="likeComment('${t.id}',${i})">❤️ ${c.likes || 0}</span>
+        </div>`;
+      });
+    }
 
-    tweets.forEach(t => {
-      const div = document.createElement("div");
-      div.className = "tweet";
-      div.innerHTML = `
-        <img class="avatar" src="${t.avatar || 'https://img.freepik.com/vetores-premium/avatar-neutro.png'}">
-        <div class="content">
-          <div><span class="name">${t.user}</span> <span class="username">@${t.user.toLowerCase()}</span></div>
-          <p>${formatHashtags(t.text)}</p>
-          ${t.image ? `<img class="tweetImg" src="${t.image}">` : ""}
-          <div class="actions">
-            <span>❤️ ${t.likes || 0}</span>
-          </div>
+    const div = document.createElement("div");
+    div.className = "tweet";
+    div.innerHTML = `
+      <img class="avatar" src="${t.avatar || 'https://img.freepik.com/vetores-premium/avatar-neutro.png'}">
+      <div class="content">
+        <div><span class="name">${t.user}</span> <span class="username">@${t.user.toLowerCase()}</span></div>
+        <p>${formatHashtags(t.text)}</p>
+        ${t.image ? `<img class="tweetImg" src="${t.image}">` : ""}
+        <div class="actions">
+          ❤️ <span id="likes-${t.id}">${t.likes || 0}</span> 
+          <button onclick="likeTweet('${t.id}')">Curtir</button>
+          <button onclick="addCommentPrompt('${t.id}')">Comentar</button>
         </div>
-      `;
-      timeline.appendChild(div);
-    });
-  }
+        <div class="commentBox">${commentsHTML}</div>
+      </div>
+    `;
+    timeline.appendChild(div);
+  });
+}
 
-  // Postar tweet
-  async function postTweet() {
-    const text = document.getElementById("tweetInput").value.trim();
-    const file = document.getElementById("imageInput").files[0];
-    if(!text && !file) return;
+// 🔹 Postar tweet
+async function postTweet(){
+  const text = document.getElementById("tweetInput").value.trim();
+  const file = document.getElementById("imageInput").files[0];
+  if(!text && !file) return;
 
-    if(file){
-      const reader = new FileReader();
-      reader.onload = async function(){
-        await supabase.from('tweets').insert([{
-          user: "Usuário",
-          avatar: "https://img.freepik.com/vetores-premium/avatar-neutro.png",
-          text: text,
-          image: reader.result,
-          likes: 0,
-          comments: []
-        }]);
-        document.getElementById("tweetInput").value="";
-        document.getElementById("imageInput").value="";
-        loadTweets();
-      }
-      reader.readAsDataURL(file);
-    } else {
+  let imageData = null;
+  if(file){
+    const reader = new FileReader();
+    reader.onload = async function(){
+      imageData = reader.result;
       await supabase.from('tweets').insert([{
-        user: "Usuário",
-        avatar: "https://img.freepik.com/vetores-premium/avatar-neutro.png",
-        text: text,
-        image: null,
-        likes: 0,
-        comments: []
+        user:"Usuário",
+        avatar:"https://img.freepik.com/vetores-premium/avatar-neutro.png",
+        text,
+        image:imageData,
+        likes:0,
+        comments:[],
+        created_at:new Date().toISOString()
       }]);
       document.getElementById("tweetInput").value="";
+      document.getElementById("imageInput").value="";
       loadTweets();
     }
+    reader.readAsDataURL(file);
+  } else {
+    await supabase.from('tweets').insert([{
+      user:"Usuário",
+      avatar:"https://img.freepik.com/vetores-premium/avatar-neutro.png",
+      text,
+      image:null,
+      likes:0,
+      comments:[],
+      created_at:new Date().toISOString()
+    }]);
+    document.getElementById("tweetInput").value="";
+    loadTweets();
   }
+}
 
-  // Atualiza automaticamente a cada 3s
+// 🔹 Curtir tweet
+async function likeTweet(id){
+  const { data } = await supabase.from('tweets').select('likes').eq('id',id).single();
+  const newLikes = (data.likes || 0)+1;
+  await supabase.from('tweets').update({likes:newLikes}).eq('id',id);
   loadTweets();
-  setInterval(loadTweets, 3000);
+}
+
+// 🔹 Adicionar comentário
+async function addCommentPrompt(id){
+  const text = prompt("Digite seu comentário:");
+  if(!text) return;
+  const { data } = await supabase.from('tweets').select('comments').eq('id',id).single();
+  let comments = data.comments || [];
+  comments.push({text, likes:0});
+  await supabase.from('tweets').update({comments}).eq('id',id);
+  loadTweets();
+}
+
+// 🔹 Curtir comentário
+async function likeComment(tweetId,index){
+  const { data } = await supabase.from('tweets').select('comments').eq('id',tweetId).single();
+  let comments = data.comments || [];
+  comments[index].likes = (comments[index].likes || 0)+1;
+  await supabase.from('tweets').update({comments}).eq('id',tweetId);
+  loadTweets();
+}
+
+// 🔹 Atualiza automaticamente a cada 3s
+loadTweets();
+setInterval(loadTweets,3000);
 </script>
 </body>
 </html>
