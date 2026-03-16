@@ -73,6 +73,8 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const timeline = document.getElementById("timeline");
 
+  document.querySelector("button").addEventListener("click", postTweet);
+
   // Formatar hashtags
   function formatHashtags(text){
     return text.replace(/#(\w+)/g,'<span style="color:#1da1f2;font-weight:bold">#$1</span>');
