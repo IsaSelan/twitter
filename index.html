@@ -79,23 +79,31 @@ function formatHashtags(text){
   return text.replace(/#(\w+)/g,'<span style="color:#1da1f2;font-weight:bold">#$1</span>');
 }
 
-// 🔹 Carregar tweets e comentários
-async function loadTweets(){
-  const { data: tweets, error } = await supabase.from('tweets').select('*').order('created_at',{ascending:false});
-  if(error){ console.log(error); return; }
+// 🔹 Carregar tweets com comentários e likes
+async function loadTweets() {
+  const { data: tweets, error } = await supabase
+    .from('tweets')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) { console.log(error); return; }
   timeline.innerHTML = "";
 
   tweets.forEach(t => {
+    // HTML dos comentários
     let commentsHTML = "";
-    if(t.comments){
-      t.comments.forEach((c,i)=>{
-        commentsHTML += `<div class="comment">
-          <span>${c.text}</span>
-          <span onclick="likeComment('${t.id}',${i})">❤️ ${c.likes || 0}</span>
-        </div>`;
+    if (t.comments && t.comments.length > 0) {
+      t.comments.forEach((c, ci) => {
+        commentsHTML += `
+          <div class="comment">
+            <span>${c.text}</span>
+            <span style="margin-left:10px; cursor:pointer;" onclick="likeComment('${t.id}', ${ci})">❤️ ${c.likes || 0}</span>
+          </div>
+        `;
       });
     }
 
+    // HTML do tweet
     const div = document.createElement("div");
     div.className = "tweet";
     div.innerHTML = `
@@ -105,9 +113,8 @@ async function loadTweets(){
         <p>${formatHashtags(t.text)}</p>
         ${t.image ? `<img class="tweetImg" src="${t.image}">` : ""}
         <div class="actions">
-          ❤️ <span id="likes-${t.id}">${t.likes || 0}</span> 
-          <button onclick="likeTweet('${t.id}')">Curtir</button>
-          <button onclick="addCommentPrompt('${t.id}')">Comentar</button>
+          <span onclick="likeTweet('${t.id}')">❤️ ${t.likes || 0}</span>
+          <span onclick="addCommentPrompt('${t.id}')">💬 Comentar</span>
         </div>
         <div class="commentBox">${commentsHTML}</div>
       </div>
@@ -115,7 +122,7 @@ async function loadTweets(){
     timeline.appendChild(div);
   });
 }
-
+  
 // 🔹 Postar tweet
 async function postTweet(){
   const text = document.getElementById("tweetInput").value.trim();
@@ -156,34 +163,35 @@ async function postTweet(){
   }
 }
 
-// 🔹 Curtir tweet
-async function likeTweet(id){
-  const { data } = await supabase.from('tweets').select('likes').eq('id',id).single();
-  const newLikes = (data.likes || 0)+1;
-  await supabase.from('tweets').update({likes:newLikes}).eq('id',id);
+// Curtir um tweet
+async function likeTweet(id) {
+  const { data: tweet } = await supabase.from('tweets').select('*').eq('id', id).single();
+  await supabase.from('tweets').update({ likes: (tweet.likes || 0) + 1 }).eq('id', id);
   loadTweets();
 }
 
-// 🔹 Adicionar comentário
-async function addCommentPrompt(id){
+// Adicionar comentário
+async function addCommentPrompt(tweetId) {
   const text = prompt("Digite seu comentário:");
-  if(!text) return;
-  const { data } = await supabase.from('tweets').select('comments').eq('id',id).single();
-  let comments = data.comments || [];
-  comments.push({text, likes:0});
-  await supabase.from('tweets').update({comments}).eq('id',id);
+  if (!text) return;
+
+  const { data: tweet } = await supabase.from('tweets').select('*').eq('id', tweetId).single();
+  const comments = tweet.comments || [];
+  comments.push({ text: "@usuario: " + text, likes: 0 });
+
+  await supabase.from('tweets').update({ comments }).eq('id', tweetId);
   loadTweets();
 }
 
-// 🔹 Curtir comentário
-async function likeComment(tweetId,index){
-  const { data } = await supabase.from('tweets').select('comments').eq('id',tweetId).single();
-  let comments = data.comments || [];
-  comments[index].likes = (comments[index].likes || 0)+1;
-  await supabase.from('tweets').update({comments}).eq('id',tweetId);
+// Curtir comentário
+async function likeComment(tweetId, commentIndex) {
+  const { data: tweet } = await supabase.from('tweets').select('*').eq('id', tweetId).single();
+  const comments = tweet.comments || [];
+  comments[commentIndex].likes = (comments[commentIndex].likes || 0) + 1;
+
+  await supabase.from('tweets').update({ comments }).eq('id', tweetId);
   loadTweets();
 }
-
 // 🔹 Atualiza automaticamente a cada 3s
 loadTweets();
 setInterval(loadTweets,3000);
