@@ -20,8 +20,6 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
 .name{font-weight:bold;}
 .username{color:gray;font-size:14px;}
 .tweetImg{width:100%;border-radius:10px;margin-top:10px;}
-.book{width:140px;margin-top:10px;border-radius:8px;}
-.summary{background:#f1f3f5;padding:10px;border-radius:10px;margin-top:8px;font-size:14px;}
 .actions{margin-top:10px;display:flex;gap:25px;color:#1da1f2;cursor:pointer;}
 .commentBox{margin-top:10px;}
 .comment{background:#f5f7fa;padding:8px;border-radius:8px;margin-top:6px;display:flex;justify-content:space-between;}
@@ -64,24 +62,23 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
     <div class="trend">#LiteraturaBrasileira</div>
   </div>
 </div>
-
 <!-- SUPABASE -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
   const SUPABASE_URL = "https://sgyowtyrawcxlfzomauc.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNneW93dHlyYXdjeGxmem9tYXVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MjUxNjUsImV4cCI6MjA4OTIwMTE2NX0.dwyq8XdNqXFFiHwf0VQfIH720vGYOmfYhdc_HN6aMt8";
-
+  
+  
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   const timeline = document.getElementById("timeline");
 
-  // 🔹 Formatar hashtags
+  // Formatar hashtags
   function formatHashtags(text){
     return text.replace(/#(\w+)/g,'<span style="color:#1da1f2;font-weight:bold">#$1</span>');
   }
 
-  // 🔹 Carregar tweets
+  // Carregar tweets
   async function loadTweets(){
     const { data: tweets, error } = await supabase
       .from('tweets')
@@ -109,7 +106,7 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
     });
   }
 
-  // 🔹 Postar tweet
+  // Postar tweet
   async function postTweet(){
     const text = document.getElementById("tweetInput").value.trim();
     const file = document.getElementById("imageInput").files[0];
@@ -124,8 +121,7 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
           text: text,
           image: reader.result,
           likes: 0,
-          comments: [],
-          created_at: new Date().toISOString()
+          comments: []
         }]);
         document.getElementById("tweetInput").value="";
         document.getElementById("imageInput").value="";
@@ -139,15 +135,14 @@ button{margin-top:10px;background:#1da1f2;border:none;color:white;padding:8px 18
         text: text,
         image: null,
         likes: 0,
-        comments: [],
-        created_at: new Date().toISOString()
+        comments: []
       }]);
       document.getElementById("tweetInput").value="";
       loadTweets();
     }
   }
 
-  // 🔹 Atualiza automaticamente a cada 3s
+  // Atualiza automaticamente a cada 3s
   loadTweets();
   setInterval(loadTweets, 3000);
 </script>
