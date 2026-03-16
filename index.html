@@ -108,7 +108,7 @@ async function loadTweets(){
 }
 
 // Postar tweet
-async function postTweet(){
+async function postTweet() {
   const text = document.getElementById("tweetInput").value.trim();
   const file = document.getElementById("imageInput").files[0];
   if(!text && !file) return;
